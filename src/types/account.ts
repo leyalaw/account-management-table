@@ -1,27 +1,13 @@
 /* ----------------------------- Учётная запись ----------------------------- */
 
-/** Общие данные учётной записи */
-export interface BaseData {
+/** Данные учётной записи */
+export interface Data {
   id: Id;
   login: string;
   tags?: Tag[];
   type: TypeId;
+  password: string | null;
 }
-
-/** Локальная учётная запись */
-export interface LocalData extends BaseData {
-  type: "local";
-  password: string;
-}
-
-/** Учётная запись LDAP */
-export interface LdapData extends BaseData {
-  type: "ldap";
-  password: null;
-}
-
-/** Данные учётной записи */
-export type Data = LocalData | LdapData;
 
 /** Идентификатор учётной записи */
 export type Id = string;
