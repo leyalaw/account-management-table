@@ -1,187 +1,188 @@
 <template>
-  <table class="table table-striped table-hover">
-    <!-- ШАПКА -->
-    <thead>
-      <tr>
-        <th :colspan="COLUMNS.length" class="text-end">
-          <!-- кнопка добавления учётной записи -->
-          <button @click="createAccount" class="btn btn-primary px-5">
-            {{ TEXT.createAccount }}
-          </button>
-        </th>
-      </tr>
-      <tr>
-        <th
-          v-for="(column, index) in COLUMNS"
-          :key="column.name"
-          scope="col"
-          :class="[`col-${column.col}`, { 'text-end': isLastColumn(index) }]"
-        >
-          <!-- чекбокс выбора всех учётных записей -->
-          <span v-if="column.name === 'checkbox'">
-            <input
-              type="checkbox"
-              v-model="selectAll"
-              :aria-label="TEXT.selectAll"
-              :disabled="accountsAmount === 0"
-              @change="toggleSelectAll"
-            />
-          </span>
-          <!-- кнопка удаления выбранных учётных записей -->
-          <span v-else-if="column.name === 'delete'">
-            <button
-              v-if="selectedAccounts.length > 0"
-              :aria-label="TEXT.deleteSelected"
-              @click="
-                confirm(TEXT.confirmDeleteSelected, deleteSelectedAccounts)
-              "
-              class="btn btn-danger btn-sm"
-            >
-              {{ column.label }}
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <!-- ШАПКА -->
+      <thead>
+        <tr>
+          <th :colspan="COLUMNS.length" class="text-end">
+            <!-- кнопка добавления учётной записи -->
+            <button @click="createAccount" class="btn btn-primary px-5">
+              {{ TEXT.createAccount }}
             </button>
-          </span>
-          <!-- названия колонок -->
-          <span v-else>
-            {{ column.label }}
-            <!-- всплывающая подсказка для колонки меток -->
-            <i
-              v-if="column.name === 'tags'"
-              class="bi bi-question-circle"
-              v-tooltip.persistent="TEXT.tagsTooptip"
-            ></i
-          ></span>
-        </th>
-      </tr>
-    </thead>
-
-    <!-- ТЕЛО -->
-    <tbody v-if="accountsAmount > 0">
-      <tr v-for="accountData in accountTableData" :key="accountData.id">
-        <td
-          v-for="(column, index) in COLUMNS"
-          :key="column.name"
-          :class="{ 'text-end': isLastColumn(index) }"
-        >
-          <!-- чекбокс для выбора учётной записи -->
-          <input
-            v-if="column.name === 'checkbox'"
-            type="checkbox"
-            v-model="selectedAccounts"
-            :value="accountData.id"
-          />
-          <!-- поле для ввода меток -->
-          <textarea
-            v-else-if="column.name === 'tags'"
-            v-model="accountData.tags"
-            v-tooltip="errors[accountData.id]?.tags"
-            rows="1"
-            :placeholder="TEXT.placeholder"
-            @blur="prepareField(accountData.id, 'tags')"
-            @input="clearError(accountData.id, 'tags')"
-            class="form-control form-control-sm"
-            :class="{ 'is-invalid': errors[accountData.id]?.tags }"
-          ></textarea>
-          <!-- выбор типа учётной записи -->
-          <select
-            v-else-if="column.name === 'type'"
-            v-model="accountData.type"
-            @change="prepareField(accountData.id, 'type')"
-            class="form-select form-select-sm"
+          </th>
+        </tr>
+        <tr>
+          <th
+            v-for="(column, index) in COLUMNS"
+            :key="column.name"
+            scope="col"
+            :class="[`col-${column.col}`, { 'text-end': isLastColumn(index) }]"
           >
-            <option
-              v-for="type in store.accountTypes"
-              :key="type.value"
-              :value="type.value"
+            <!-- чекбокс выбора всех учётных записей -->
+            <span v-if="column.name === 'checkbox'">
+              <input
+                type="checkbox"
+                v-model="selectAll"
+                :aria-label="TEXT.selectAll"
+                :disabled="accountsAmount === 0"
+                @change="toggleSelectAll"
+              />
+            </span>
+            <!-- кнопка удаления выбранных учётных записей -->
+            <span v-else-if="column.name === 'delete'">
+              <button
+                v-if="selectedAccounts.length > 0"
+                :aria-label="TEXT.deleteSelected"
+                @click="
+                  confirm(TEXT.confirmDeleteSelected, deleteSelectedAccounts)
+                "
+                class="btn btn-danger btn-sm"
+              >
+                {{ column.label }}
+              </button>
+            </span>
+            <!-- названия колонок -->
+            <span v-else>
+              {{ column.label }}
+              <!-- всплывающая подсказка для колонки меток -->
+              <i
+                v-if="column.name === 'tags'"
+                class="bi bi-question-circle"
+                v-tooltip.persistent="TEXT.tagsTooptip"
+              ></i
+            ></span>
+          </th>
+        </tr>
+      </thead>
+      <!-- ТЕЛО -->
+      <tbody v-if="accountsAmount > 0">
+        <tr v-for="accountData in accountTableData" :key="accountData.id">
+          <td
+            v-for="(column, index) in COLUMNS"
+            :key="column.name"
+            :class="{ 'text-end': isLastColumn(index) }"
+          >
+            <!-- чекбокс для выбора учётной записи -->
+            <input
+              v-if="column.name === 'checkbox'"
+              type="checkbox"
+              v-model="selectedAccounts"
+              :value="accountData.id"
+            />
+            <!-- поле для ввода меток -->
+            <textarea
+              v-else-if="column.name === 'tags'"
+              v-model="accountData.tags"
+              v-tooltip="errors[accountData.id]?.tags"
+              rows="1"
+              :placeholder="TEXT.placeholder"
+              @blur="prepareField(accountData.id, 'tags')"
+              @input="clearError(accountData.id, 'tags')"
+              class="form-control form-control-sm"
+              :class="{ 'is-invalid': errors[accountData.id]?.tags }"
+            ></textarea>
+            <!-- выбор типа учётной записи -->
+            <select
+              v-else-if="column.name === 'type'"
+              v-model="accountData.type"
+              @change="prepareField(accountData.id, 'type')"
+              class="form-select form-select-sm"
             >
-              {{ type.label }}
-            </option>
-          </select>
-          <!-- поле для ввода логина -->
-          <input
-            v-else-if="column.name === 'login'"
-            type="text"
-            maxlength="100"
-            v-model="accountData.login"
-            v-tooltip="errors[accountData.id]?.login"
-            :placeholder="TEXT.placeholder"
-            @blur="prepareField(accountData.id, 'login')"
-            @input="clearError(accountData.id, 'login')"
-            class="form-control form-control-sm"
-            :class="{ 'is-invalid': errors[accountData.id]?.login }"
-          />
-          <!-- поле для ввода пароля -->
-          <input
-            v-else-if="
-              column.name === 'password' && accountData.type === 'local'
-            "
-            type="password"
-            v-model="accountData.password"
-            v-tooltip="errors[accountData.id]?.password"
-            :placeholder="TEXT.placeholder"
-            @blur="prepareField(accountData.id, 'password')"
-            @input="clearError(accountData.id, 'password')"
-            class="form-control form-control-sm"
-            :class="{ 'is-invalid': errors[accountData.id]?.password }"
-          />
-          <!-- кнопка удаления учётной записи -->
-          <button
-            v-else-if="column.name === 'delete'"
-            @click="confirm(TEXT.confirmDelete, deleteAccount, accountData.id)"
-            class="btn btn-danger"
-          >
-            <i class="bi bi-trash3"></i>
-          </button>
-        </td>
-      </tr>
-    </tbody>
-
-    <!-- ПУСТОЕ ТЕЛО -->
-    <tbody v-else>
-      <tr>
-        <td :colspan="COLUMNS.length" class="text-center">
-          <span>{{ TEXT.empty }}</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ -->
-  <div
-    class="modal fade"
-    tabindex="-1"
-    aria-hidden="true"
-    ref="confirmModalRef"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title">{{ TEXT.confirmModalHeader }}</h2>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            :aria-label="TEXT.confirmModalClose"
-          ></button>
-        </div>
-        <div class="modal-body">
-          {{ confirmData.message }}
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-danger"
-            data-bs-dismiss="modal"
-            @click="confirmData.handler()"
-          >
-            {{ TEXT.confirmModalAgree }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            {{ TEXT.confirmModalDisagree }}
-          </button>
+              <option
+                v-for="type in store.accountTypes"
+                :key="type.value"
+                :value="type.value"
+              >
+                {{ type.label }}
+              </option>
+            </select>
+            <!-- поле для ввода логина -->
+            <input
+              v-else-if="column.name === 'login'"
+              type="text"
+              maxlength="100"
+              v-model="accountData.login"
+              v-tooltip="errors[accountData.id]?.login"
+              :placeholder="TEXT.placeholder"
+              @blur="prepareField(accountData.id, 'login')"
+              @input="clearError(accountData.id, 'login')"
+              class="form-control form-control-sm"
+              :class="{ 'is-invalid': errors[accountData.id]?.login }"
+            />
+            <!-- поле для ввода пароля -->
+            <input
+              v-else-if="
+                column.name === 'password' && accountData.type === 'local'
+              "
+              type="password"
+              v-model="accountData.password"
+              v-tooltip="errors[accountData.id]?.password"
+              :placeholder="TEXT.placeholder"
+              @blur="prepareField(accountData.id, 'password')"
+              @input="clearError(accountData.id, 'password')"
+              class="form-control form-control-sm"
+              :class="{ 'is-invalid': errors[accountData.id]?.password }"
+            />
+            <!-- кнопка удаления учётной записи -->
+            <button
+              v-else-if="column.name === 'delete'"
+              @click="
+                confirm(TEXT.confirmDelete, deleteAccount, accountData.id)
+              "
+              class="btn btn-danger"
+            >
+              <i class="bi bi-trash3"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+      <!-- ПУСТОЕ ТЕЛО -->
+      <tbody v-else>
+        <tr>
+          <td :colspan="COLUMNS.length" class="text-center">
+            <span>{{ TEXT.empty }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ -->
+    <div
+      class="modal fade"
+      tabindex="-1"
+      aria-hidden="true"
+      ref="confirmModalRef"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">{{ TEXT.confirmModalHeader }}</h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              :aria-label="TEXT.confirmModalClose"
+            ></button>
+          </div>
+          <div class="modal-body">
+            {{ confirmData.message }}
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-bs-dismiss="modal"
+              @click="confirmData.handler()"
+            >
+              {{ TEXT.confirmModalAgree }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              {{ TEXT.confirmModalDisagree }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -423,6 +424,8 @@ const changeData = (id?: Account.Id, data?: Partial<Account.Data>) => {
 
   const updatedAccount = store.updateAccount(accountId, updateData);
 
+  if (!updatedAccount) return;
+
   accountTableData.value[updatedAccount.id] = {
     ...updatedAccount,
     tags: getTagsString(updatedAccount.tags),
@@ -460,4 +463,8 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+table {
+  min-width: 768px;
+}
+</style>
