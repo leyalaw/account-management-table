@@ -1,5 +1,5 @@
 // типы
-import type * as Account from "../types/account";
+import type * as Account from "@/types/account";
 // основное
 import { ref, watch } from "vue";
 import { defineStore } from "pinia";
@@ -31,7 +31,7 @@ export const useAccountStore = defineStore("account", () => {
   );
 
   /** Получение "пустой" учётной записи */
-  const getDummyAccount = (): Account.LdapData => ({
+  const getDummyAccount = (): Account.Data => ({
     id: Date.now().toString(),
     tags: [],
     login: "",
@@ -43,15 +43,24 @@ export const useAccountStore = defineStore("account", () => {
   const addAccount = (data: Account.Data) => accounts.value.push(data);
 
   /** Редактирование учётной записи */
-  const updateAccount = (data: Account.Data) => {
-    const index = accounts.value.findIndex((account) => account.id === data.id);
+  const updateAccount = (id: Account.Id, data: Partial<Account.Data>) => {
+    const index = accounts.value.findIndex((account) => account.id === id);
 
-    if (index < 0) addAccount(data);
-    else accounts.value[index] = data;
+    let updatedAccount: Account.Data;
+
+    if (index < 0) {
+      updatedAccount = { ...getDummyAccount(), ...data, id };
+      addAccount(updatedAccount);
+    } else {
+      updatedAccount = { ...accounts.value[index], ...data };
+      accounts.value[index] = updatedAccount;
+    }
+
+    return updatedAccount;
   };
 
   /** Удаление учётных записей */
-  const removeAccounts = (...ids: Account.Id[]) =>
+  const removeAccount = (...ids: Account.Id[]) =>
     (accounts.value = accounts.value.filter(
       (account) => !ids.includes(account.id)
     ));
@@ -62,6 +71,6 @@ export const useAccountStore = defineStore("account", () => {
     getDummyAccount,
     addAccount,
     updateAccount,
-    removeAccounts,
+    removeAccount,
   };
 });
