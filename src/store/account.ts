@@ -49,7 +49,6 @@ export const useAccountStore = defineStore("account", () => {
     let updatedAccount: Account.Data;
 
     if (index < 0) {
-      if (!data.login || (!data.password && data.type !== "ldap")) return;
       updatedAccount = { ...getDummyAccount(), ...data, id };
       addAccount(updatedAccount);
     } else {
