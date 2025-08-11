@@ -39,24 +39,16 @@ export const useAccountStore = defineStore("account", () => {
     password: null,
   });
 
-  /** Добавление учётной записи */
-  const addAccount = (data: Account.Data) => accounts.value.push(data);
-
   /** Редактирование учётной записи */
-  const updateAccount = (id: Account.Id, data: Partial<Account.Data>) => {
-    const index = accounts.value.findIndex((account) => account.id === id);
+  const updateAccounts = (data: Account.Data) => {
+    if (!data.login || (!data.password && data.type !== "ldap")) return false;
 
-    let updatedAccount: Account.Data;
+    const index = accounts.value.findIndex((account) => account.id === data.id);
 
-    if (index < 0) {
-      updatedAccount = { ...getDummyAccount(), ...data, id };
-      addAccount(updatedAccount);
-    } else {
-      updatedAccount = { ...accounts.value[index], ...data };
-      accounts.value[index] = updatedAccount;
-    }
+    if (index < 0) accounts.value.push({ ...getDummyAccount(), ...data });
+    else accounts.value[index] = { ...accounts.value[index], ...data };
 
-    return updatedAccount;
+    return true;
   };
 
   /** Удаление учётных записей */
@@ -69,8 +61,7 @@ export const useAccountStore = defineStore("account", () => {
     accounts,
     accountTypes,
     getDummyAccount,
-    addAccount,
-    updateAccount,
+    updateAccounts,
     removeAccount,
   };
 });

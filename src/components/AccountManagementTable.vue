@@ -145,6 +145,7 @@
         </tr>
       </tbody>
     </table>
+
     <!-- МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ -->
     <div
       class="modal fade"
@@ -258,6 +259,8 @@ const COLUMNS: ColumnData[] = [
   { name: "password", col: 3, label: "Пароль" },
   { name: "delete", col: 1, label: "Удалить" },
 ];
+
+const emit = defineEmits(["change"]);
 
 /** Модальное окно */
 const confirmModal = ref<Modal | null>(null);
@@ -389,7 +392,7 @@ const prepareTags = (id: Account.Id) => {
     if (trimmedTag.length) tags.push({ text: trimmedTag });
   }
 
-  changeData(id, { tags });
+  changeData(id, { tags }, true);
 };
 
 /** Удаление учётных записей */
@@ -416,22 +419,34 @@ const deleteSelectedAccounts = () => {
 };
 
 /** Обновление данных учётной записи */
-const changeData = (id?: Account.Id, data?: Partial<Account.Data>) => {
+const changeData = (
+  id?: Account.Id,
+  data?: Partial<Account.Data>,
+  withTags: boolean = false
+) => {
   const accountId = id ?? confirmData.value.id;
   const updateData = data ?? confirmData.value.data;
 
   if (!accountId || typeof accountId !== "string" || !updateData) return;
 
-  const updatedAccount = store.updateAccount(accountId, updateData);
-
-  if (!updatedAccount) return;
-
-  accountTableData.value[updatedAccount.id] = {
-    ...updatedAccount,
-    tags: getTagsString(updatedAccount.tags),
+  const updatedData: Omit<Account.Data, "tags"> = {
+    ...accountTableData.value[accountId],
+    ...updateData,
   };
 
-  console.log("store.accounts :>> ", store.accounts);
+  if (!withTags && "tags" in updatedData) delete updatedData.tags;
+
+  const result = store.updateAccounts(updatedData);
+
+  if (result) emit("change");
+
+  if ("tags" in updatedData)
+    updatedData.tags = getTagsString(updatedData.tags as Account.Tag[]);
+
+  accountTableData.value[accountId] = {
+    ...accountTableData.value[accountId],
+    ...updatedData,
+  };
 };
 
 /** Распределение обработки полей */
