@@ -202,6 +202,8 @@ import { computed, onMounted, ref } from "vue";
 import { Modal } from "bootstrap";
 // хранилище
 import { useAccountStore } from "@store/account";
+// текст (для удобства редактирования)
+import TEXT from "@/locales/ru.json";
 
 /* ---------------------------------- Типы ---------------------------------- */
 
@@ -224,31 +226,6 @@ interface ConfirmData {
 type AccountRawData = Omit<Account.Data, "tags"> & { tags: string };
 
 /* -------------------------------------------------------------------------- */
-
-// текст помещен в объект для удобства редактирования
-/** Текст */
-const TEXT: Record<string, string> = {
-  empty: "Список пуст",
-  placeholder: "Значение",
-  createAccount: "Добавить",
-  selectAll: "Выбрать все учётные записи",
-  deleteSelected: "Удалить выбранные учётные записи",
-  tagsTooptip:
-    "Для указания нескольких меток для одной пары логин/пароль используйте разделитель ;",
-  tagLimit: "Тег не должен превышать 50 символов",
-  confirmModalHeader: "Внимание!",
-  confirmModalClose: "Закрыть модальное окно",
-  confirmModalAgree: "Ок",
-  confirmModalDisagree: "Отмена",
-  confirmDelete: "Вы действительно хотите удалить учётную запись?",
-  confirmDeleteSelected:
-    "Вы действительно хотите удалить выбранные учётные записи?",
-  confirmLdap:
-    "Изменение типа аккаунта приведет к очистке пароля. Вы уверены, что хотите продолжить?",
-  confirmTrim:
-    "Поле будет сохранено без пробелов в начале и в конце. Продолжить?",
-  errorEmpty: "Поле не может быть пустым",
-};
 
 /** Данные столбцов */
 const COLUMNS: ColumnData[] = [
